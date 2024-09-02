@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expense-tracker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expense-tracker
+  template:
+    metadata:
+      labels:
+        app: expense-tracker
+    spec:
+      containers:
+      - name: expense-tracker
+        image: adanilkumar/expense-tracker  # Replace with your Docker Hub image
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://expense_user:password@postgres/expense_tracker"
+      imagePullSecrets:
+      - name: regcred  # Only if using a private Docker Hub repository
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expense-tracker-service
+spec:
+  type: NodePort
+  selector:
+    app: expense-tracker
+  ports:
+  - port: 80
+    targetPort: 5000
+    nodePort: 30007  # Optional, specify or let Kubernetes choose
+
