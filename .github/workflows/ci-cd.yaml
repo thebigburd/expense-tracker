@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build application:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,4 +20,4 @@ jobs:
 
       - name: Create PostgreSQL Container
         run: |
-          docker run --name expensedb -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" -e POSTGRES_DB=expensedb -d postgres:latest
+          docker run --name expensedb -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} -e POSTGRES_DB=expensedb -d postgres:latest
