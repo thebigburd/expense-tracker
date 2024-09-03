@@ -1,6 +1,6 @@
 Flask
 Flask-SQLAlchemy
 psycopg2-binary
-secrets
+github-actions
 
 

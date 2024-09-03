@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-import secrets
+from github.actions import get_inputs
 
-secret_user = secrets.get_secret("POSTGRES_USER")
-secret_password = secrets.get_secret("POSTGRES_PASSWORD")
+secret_user = get_inputs.get('POSTGRES_USER')
+secret_password = get_inputs.get('POSTGRES_PASSWORD')
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{secret_user}:{secret_password}@expensedb:5432/expense_tracker'
 db = SQLAlchemy(app)
