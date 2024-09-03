@@ -39,21 +39,39 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa 16.171.255.74 >> ~/.ssh/known_hosts
 
-      - name: Power off existing app and redeploy Application to Server
+      - name: Power off existing containers and Deploy to Server
         run: |
           ssh ubuntu@16.171.255.74 << EOF
+
+            # Create a Docker network if it doesn't exist
+            docker network create my-network || true
+
+            # Stop and remove existing database containers
+            docker stop expense-tracker expensetrackerdb || true
+            docker rm expense-tracker expensetrackerdb || true
+
+            # Run PostgreSQL container
+            docker run -d --name expensetrackerdb \
+              --network my-network \
+              -e POSTGRES_USER=${{ secrets.POSTGRES_USER}} \
+              -e POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}} \
+              -e POSTGRES_DB=expense_tracker \
+              postgres:16
+
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
-            # Stop and Remove Existing Containers
+            # Stop and Remove Existing App Containers
             sudo docker stop expense-tracker || true
             sudo docker rm expense-tracker || true
-            # Run the new container
+
+            # Run the new App container
             sudo docker run -d --name expense-tracker \
+              --network my-network \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -p 5000:5000 \
               ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
 
-            # Clean up old images
+            # Clean up old App images
             sudo docker image prune --filter "until=48h" --filter "label=expense-tracker"
           EOF
 
