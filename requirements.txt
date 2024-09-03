@@ -1,4 +1,3 @@
-openssl-engine
 Flask
 Flask-SQLAlchemy
 psycopg2-binary
