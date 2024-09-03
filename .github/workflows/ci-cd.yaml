@@ -42,7 +42,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa 16.171.255.74 >> ~/.ssh/known_hosts
 
-      - name: Clean and Deploy Application to Server
+      - name: Power off existing app and redeploy Application to Server
         run: |
           ssh ubuntu@16.171.255.74 << EOF
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
@@ -54,3 +54,22 @@ jobs:
               -p 5000:5000 \
               ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
           EOF
+
+      - name: Check Application Health
+        run: |
+          for i in {1..10}; do
+            response=$(curl -s -o /dev/null -w "%{http_code}" http://16.171.255.74:5000)
+            if [ $response = "200" ]; then
+              echo "Application is up and running!"
+              exit 0
+            fi
+            echo "Waiting for application to start... (Attempt $i/10)"
+            sleep 5
+          done
+          echo "Application failed to start within the expected time."
+          exit 1
+
+      - name: Fetch Application Logs on Failure
+        if: failure()
+        run: |
+          ssh ubuntu@16.171.255.74 "sudo docker logs expense-tracker"
