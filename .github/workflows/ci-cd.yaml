@@ -59,14 +59,38 @@ jobs:
 
       - name: Check Application Health
         run: |
-          for i in {1..10}; do
+          max_attempts=10
+          wait_seconds=10
+          for i in $(seq 1 $max_attempts); do
+            echo "Attempt $i/$max_attempts"
+            
+            # Check if the container is running
+            container_status=$(ssh ubuntu@16.171.255.74 "sudo docker inspect -f '{{.State.Status}}' expense-tracker")
+            if [ "$container_status" != "running" ]; then
+              echo "Container is not running. Status: $container_status"
+              exit 1
+            fi
+            
+            # Check the application's response
             response=$(curl -s -o /dev/null -w "%{http_code}" http://16.171.255.74:5000)
             if [ $response = "200" ]; then
               echo "Application is up and running!"
               exit 0
+            elif [ $response = "000" ]; then
+              echo "Connection refused. Application might still be starting..."
+            else
+              echo "Received unexpected status code: $response"
             fi
-            echo "Waiting for application to start... (Attempt $i/10)"
-            sleep 5
+            
+            # Check container logs for errors
+            error_log=$(ssh ubuntu@16.171.255.74 "sudo docker logs --tail 20 expense-tracker 2>&1 | grep -i 'error'")
+            if [ ! -z "$error_log" ]; then
+              echo "Found errors in container logs:"
+              echo "$error_log"
+              exit 1
+            fi
+            
+            sleep $wait_seconds
           done
           echo "Application failed to start within the expected time."
           exit 1
