@@ -32,8 +32,9 @@ jobs:
         run: |
           docker run --name expensedb -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} -e POSTGRES_DB=expensedb -d postgres:latest
 
-      - name: Update known hosts file
+      - name: Create SSH directory and update known hosts file
         run: |
+          mkdir -p ~/.ssh
           ssh-keyscan -t rsa 16.171.255.74 >> ~/.ssh/known_hosts
 
       - name: Deploy Application to Server
