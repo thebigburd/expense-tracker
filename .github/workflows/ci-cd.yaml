@@ -24,7 +24,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          dockerfile: /Dockerfile_app
+          file: /Dockerfile_app
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
 
