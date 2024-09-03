@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build application:
+  build_application:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
