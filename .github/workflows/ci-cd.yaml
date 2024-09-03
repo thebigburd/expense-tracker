@@ -44,5 +44,5 @@ jobs:
 
       - name: Deploy Application to Server
         run: |
-          ssh root@16.171.255.74 "docker pull ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest"
-          ssh root@16.171.255.74 "docker run -d --name expense-tracker ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest"
+          ssh ubuntu@16.171.255.74 "sudo docker pull ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest"
+          ssh ubuntu@16.171.255.74 "sudo docker run -d --name expense-tracker ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest"
