@@ -1,8 +1,5 @@
 Flask
 Flask-SQLAlchemy
 psycopg2-binary
-<<<<<<< HEAD
-=======
 secrets
->>>>>>> e804e05 (Universal App deployment)
 

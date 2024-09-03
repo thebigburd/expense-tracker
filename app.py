@@ -1,17 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-<<<<<<< HEAD
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://expense_user:Password123@172.21.176.85:5432/expense_tracker'
-=======
 import secrets
 
 secret_user = secrets.get_secret("POSTGRES_USER")
 secret_password = secrets.get_secret("POSTGRES_PASSWORD")
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{secret_user}:{secret_password}@expensedb:5432/expense_tracker'
->>>>>>> e804e05 (Universal App deployment)
 db = SQLAlchemy(app)
 
 class Expense(db.Model):
