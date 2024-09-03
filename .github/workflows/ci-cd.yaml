@@ -16,7 +16,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t expense-tracker . --file ../../Dockerfile_app
+          docker build -t expense-tracker . --file ../Dockerfile_app
 
       - name: Create PostgreSQL Container
         run: |
