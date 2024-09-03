@@ -55,7 +55,7 @@ jobs:
               --network expense-network \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER}} \
               -e POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}} \
-              -e POSTGRES_DB=expensetrackerdb \
+              -e POSTGRES_DB=expense_tracker \
               postgres:16
 
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
