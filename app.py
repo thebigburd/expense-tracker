@@ -5,7 +5,7 @@ import os
 secret_user = os.environ.get('POSTGRES_USER')
 secret_password = os.environ.get('POSTGRES_PASSWORD')
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{secret_user}:{secret_password}@expense_tracker:5432/expense_tracker'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{secret_user}:{secret_password}@expensetrackerdb:5432/expense_tracker'
 db = SQLAlchemy(app)
 
 class Expense(db.Model):
