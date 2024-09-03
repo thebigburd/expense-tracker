@@ -72,7 +72,7 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
 
             # Clean up old App images
-            sudo docker image prune --filter "until=48h" --filter "label=expense-tracker"
+            sudo docker image prune --filter "until=48h" --filter "label=expense-tracker" -f
           EOF
 
       - name: Check Application Health
