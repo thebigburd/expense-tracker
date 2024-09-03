@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build_application:
+  build_and_deploy_app:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +31,10 @@ jobs:
       - name: Create PostgreSQL Container
         run: |
           docker run --name expensedb -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} -e POSTGRES_DB=expensedb -d postgres:latest
+
+      - name: Update known hosts file
+        run: |
+          ssh-keyscan -t rsa 16.171.255.74 >> ~/.ssh/known_hosts
 
       - name: Deploy Application to Server
         run: |
