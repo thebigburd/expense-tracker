@@ -9,7 +9,9 @@ COPY . /app
 
 # Update pip and Install any needed packages specified in requirements.txt
 RUN python -m pip install --upgrade pip &&\
-	pip install --no-cache-dir -r requirements.txt
+	pip install --no-cache-dir -r requirements.txt &&\
+	apt-get update &&\ 
+	apt-get install -y iputils-ping
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
