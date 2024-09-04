@@ -90,7 +90,7 @@ jobs:
             fi
             
             # Check the application's response
-            response=$(curl -s -o /dev/null -w "%{http_code}" http://16.171.255.74:5000)
+            response=$(curl -s -o /dev/null -w "%{http_code}" http://16.171.255.74)
             if [ $response = "200" ]; then
               echo "Application is up and running!"
               exit 0
