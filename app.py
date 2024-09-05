@@ -18,14 +18,15 @@ class Expense(db.Model):
 def index():
     expenses = Expense.query.all()
     total = sum(expense.price for expense in expenses)
-    return render_template('index.html', expenses=expenses, total="{:.2f}".format(total))
+    return render_template('index.html', expenses=expenses, total="{:.2f}".format(total / 100))
 
 @app.route('/add', methods=['POST'])
 def add_expense():
     name = request.form.get('name')    
     category = request.form.get('category')
-    price = int(request.form.get('price') * 100)
-    new_expense = Expense(name=name, category=category, price=price)
+    price_pounds = float(request.form.get('price'))
+    price_pence = int(price_pounds * 100)
+    new_expense = Expense(name=name, category=category, price=price_pence)
     db.session.add(new_expense)
     db.session.commit()
     return redirect(url_for('index'))
@@ -38,9 +39,10 @@ def update_expense(id):
   elif request.method == 'POST':
     name = request.form.get('name')    
     category = request.form.get('category')
-    price = int(request.form.get('price') * 100)
+    price_pounds = float(request.form.get('price'))
+    expense.name = name
     expense.category = category
-    expense.price = price
+    expense.price = int(price_pounds * 100)
     db.session.commit()
     return redirect(url_for('index'))
 
