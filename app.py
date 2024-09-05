@@ -24,9 +24,22 @@ def index():
 def add_expense():
     name = request.form.get('name')    
     category = request.form.get('category')
-    price = request.form.get('price') * 100
-    new_expense = Expense(name=name, category=category, price=int(price))
+    price = int(request.form.get('price') * 100)
+    new_expense = Expense(name=name, category=category, price=price)
     db.session.add(new_expense)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update_expense(id):
+  expense = Expense.query.get_or_404(id)
+  if request.method == 'GET':
+    return render_template('update.html', expense=expense)
+  elif request.method == 'POST':
+    category = request.form.get('category')
+    price = request.form.get('price')
+    expense.category = category
+    expense.price = float(price)
     db.session.commit()
     return redirect(url_for('index'))
 
