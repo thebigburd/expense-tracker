@@ -54,7 +54,7 @@
         // Create the popup window
         var popup = window.open("", "UpdateExpense", "width=400,height=300");
         popup.document.write("<html><head><title>Update Expense</title></head><body>");
-        popup.document.appendChild(form);
+        popup.document.body.appendChild(form);
         popup.document.write("</body></html>");
     }
     </script>
