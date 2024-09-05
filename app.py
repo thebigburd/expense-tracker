@@ -12,7 +12,7 @@ class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
-    price = db.Column(db.Numeric(10,2), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
 
 @app.route('/')
 def index():
@@ -24,8 +24,8 @@ def index():
 def add_expense():
     name = request.form.get('name')    
     category = request.form.get('category')
-    price = request.form.get('price')
-    new_expense = Expense(name=name, category=category, price=float(price))
+    price = request.form.get('price') * 100
+    new_expense = Expense(name=name, category=category, price=int(price))
     db.session.add(new_expense)
     db.session.commit()
     return redirect(url_for('index'))

@@ -18,6 +18,38 @@
           }
         }
       }
+
+    function showUpdateForm(button, id) {
+    // Create the popup form elements
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/update/" + id;
+
+        var categoryInput = document.createElement("input");
+        categoryInput.type = "text";
+        categoryInput.name = "category";
+        categoryInput.value = button.parentNode.parentNode.querySelector("td:nth-child(2)").textContent;
+
+        var priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.step = "0.01";
+        priceInput.name = "price";
+        priceInput.value = button.parentNode.parentNode.querySelector("td:nth-child(3)").textContent;
+
+        var submitButton = document.createElement("button");
+        submitButton.type = "submit";
+        submitButton.textContent = "Update";
+
+        form.appendChild(categoryInput);
+        form.appendChild(priceInput);
+        form.appendChild(submitButton);
+
+        // Create the popup window
+        var popup = window.open("", "UpdateExpense", "width=400,height=200");
+        popup.document.write("<html><head><title>Update Expense</title></head><body>");
+        popup.document.appendChild(form);
+        popup.document.write("</body></html>");
+    }
     </script>
 </head>
 <body>
@@ -52,6 +84,7 @@
                 <td>{{ expense.category }}</td>
                 <td>£{{ expense.price }}</td>
                 <td>
+                    <button type="button" class="update-icon" onclick="showUpdateForm(this, expense.id)">✎</button>
                     <form method="POST" action="/delete/{{ expense.id }}">
                         <button type="submit" class="delete-icon">X</button>
                     </form>
