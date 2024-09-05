@@ -18,7 +18,7 @@ class Expense(db.Model):
 def index():
     expenses = Expense.query.all()
     total = sum(expense.price for expense in expenses)
-    return render_template('index.html', expenses="{:.2f}".format(expenses), total="{:.2f}".format(total))
+    return render_template('index.html', expenses=expenses, total="{:.2f}".format(total))
 
 @app.route('/add', methods=['POST'])
 def add_expense():
