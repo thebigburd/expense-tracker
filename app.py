@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os 
 
@@ -31,20 +31,20 @@ def add_expense():
     db.session.commit()
     return redirect(url_for('index'))
 
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
+@app.route('/update/<int:id>', methods=['POST'])
 def update_expense(id):
-  expense = Expense.query.get_or_404(id)
-  if request.method == 'GET':
-    return render_template('update.html', expense=expense)
-  elif request.method == 'POST':
-    name = request.form.get('name')    
-    category = request.form.get('category')
+    expense = Expense.query.get_or_404(id)
+    expense.name = request.form.get('name')
+    expense.category = request.form.get('category')
     price_pounds = float(request.form.get('price'))
-    expense.name = name
-    expense.category = category
-    expense.price = int(price_pounds * 100)
-    db.session.commit()
-    return redirect(url_for('index'))
+    expense.price = int(price_pounds * 100)  # Convert pounds to pence
+    
+    try:
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)})
 
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delete_expense(id):

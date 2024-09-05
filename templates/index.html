@@ -17,50 +17,65 @@
             input.value = value.substring(0, decimalIndex + 3);
           }
         }
-      }
-
-    function showUpdateForm(button, id) {
-    // Create the popup form elements
-        var form = document.createElement("form");
-        form.method = "POST";
-        form.action = "/update/" + id;
-
-        var nameInput = document.createElement("input");
-        nameInput.type = "text";
-        nameInput.name = "name";
-        nameInput.value = button.closest("tr").querySelector("td:nth-child(1)").textContent;
-
-        var categoryInput = document.createElement("input");
-        categoryInput.type = "text";
-        categoryInput.name = "category";
-        categoryInput.value = button.closest("tr").querySelector("td:nth-child(2)").textContent;
-
-        var priceInput = document.createElement("input");
-        priceInput.type = "number";
-        priceInput.step = "0.01";
-        priceInput.name = "price";
-        var priceText = button.closest("tr").querySelector("td:nth-child(3)").textContent;
-        priceInput.value = parseFloat(priceText.replace('£', '')).toFixed(2);
-
-        var submitButton = document.createElement("button");
-        submitButton.type = "submit";
-        submitButton.textContent = "Update";
-
-        form.appendChild(nameInput);
-        form.appendChild(categoryInput);
-        form.appendChild(priceInput);
-        form.appendChild(submitButton);
-
-        // Create the popup window
-        var popup = window.open("", "UpdateExpense", "width=400,height=300");
-        popup.document.write("<html><head><title>Update Expense</title></head><body>");
-        popup.document.body.appendChild(form);
-        popup.document.write("</body></html>");
     }
+
+    function toggleEditMode(button) {
+        const row = button.closest('tr');
+        row.classList.toggle('edit-mode');
+        row.classList.toggle('display-mode');
+        
+        if (row.classList.contains('edit-mode')) {
+            button.textContent = 'Save';
+        } else {
+            button.textContent = '✎';
+            updateExpense(row);
+        }
+    }
+
+    // Sends an AJAX request to update Expenses
+    function updateExpense(row) {
+        const id = row.dataset.id;
+        const name = row.querySelector('input[name="name"]').value;
+        const category = row.querySelector('input[name="category"]').value;
+        const price = row.querySelector('input[name="price"]').value;
+
+        fetch(`/update/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `name=${encodeURIComponent(name)}&category=${encodeURIComponent(category)}&price=${encodeURIComponent(price)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                row.querySelector('span[name="name"]').textContent = name;
+                row.querySelector('span[name="category"]').textContent = category;
+                row.querySelector('span[name="price"]').textContent = `£${parseFloat(price).toFixed(2)}`;
+                updateTotal();
+            } else {
+                alert('Failed to update expense. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+
+    function updateTotal() {
+        const priceSpans = document.querySelectorAll('span[name="price"]');
+        let total = 0;
+        priceSpans.forEach(span => {
+            total += parseFloat(span.textContent.replace('£', ''));
+        });
+        document.getElementById('total').textContent = `£${total.toFixed(2)}`;
+    }
+
     </script>
 </head>
 <body>
-    <h1>Expense Tracker</h1> 
+    <h1>Expense Tracker</h1>   
 
     <form method="POST" action="/add">
         <input type="text" name="name" placeholder="Expense Name" required>
@@ -71,10 +86,12 @@
             <option value="Entertainment">
             <option value="Clothing">
         </datalist>
-        <input type="number" step="0.01" name="price" id="price" placeholder="Price in £" required oninput="formatPrice(this)">
+        <input type="number" step="0.01" name="price" id="price" placeholder="Price" required oninput="formatPrice(this)">
         <button type="submit">Add Expense</button>
     </form>
-    <h2>Total: £{{ total }}</h2>
+    
+    <h2>Total: £<span id="total">{{ "%.2f"|format(total) }}</span></h2>
+    
     <table>
         <thead>
             <tr>
@@ -86,13 +103,22 @@
         </thead>
         <tbody>
             {% for expense in expenses %}
-            <tr>
-                <td>{{ expense.name }}</td>
-                <td>{{ expense.category }}</td>
-                <td>£{{ "%.2f"|format(expense.price / 100) }}</td>
+            <tr class="display-mode" data-id="{{ expense.id }}">
                 <td>
-                    <button type="button" class="update-icon" onclick="showUpdateForm(this, {{ expense.id }})">✎</button>
-                    <form method="POST" action="/delete/{{ expense.id }}">
+                    <span name="name">{{ expense.name }}</span>
+                    <input type="text" name="name" value="{{ expense.name }}">
+                </td>
+                <td>
+                    <span name="category">{{ expense.category }}</span>
+                    <input type="text" name="category" value="{{ expense.category }}">
+                </td>
+                <td>
+                    <span name="price">£{{ "%.2f"|format(expense.price / 100) }}</span>
+                    <input type="number" step="0.01" name="price" value="{{ "%.2f"|format(expense.price / 100) }}" oninput="formatPrice(this)">
+                </td>
+                <td>
+                    <button type="button" class="update-icon" onclick="toggleEditMode(this)">✎</button>
+                    <form method="POST" action="{{ url_for('delete_expense', id=expense.id) }}" style="display: inline;">
                         <button type="submit" class="delete-icon">X</button>
                     </form>
                 </td>
