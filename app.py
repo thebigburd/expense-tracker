@@ -22,9 +22,10 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_expense():
+    name = request.form.get('name')    
     category = request.form.get('category')
     price = request.form.get('price')
-    new_expense = Expense(category=category, price=float(price))
+    new_expense = Expense(name=name, category=category, price=float(price))
     db.session.add(new_expense)
     db.session.commit()
     return redirect(url_for('index'))
@@ -35,7 +36,6 @@ def delete_expense(id):
     if request.method == 'POST':
         db.session.delete(expense)
         db.session.commit()
-        data_deletion_counter.inc()  # Increment the deletion metric
         return redirect(url_for('index'))
     return render_template('delete.html', expense=expense)
 
