@@ -2,20 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <title>Expense Tracker</title>
-
+    <style>
+        .edit-mode .edit-field {
+            display: inline-block;
+        }
+        .edit-mode .display-field {
+            display: none;
+        }
+        .display-mode .edit-field {
+            display: none;
+        }
+        .display-mode .display-field {
+            display: inline-block;
+        }
+    </style>
     <script>
-    // Limits price input to two decimal points
     function formatPrice(input) {
         const value = input.value;
         const decimalIndex = value.indexOf('.');
         if (decimalIndex !== -1) {
-          const decimalPart = value.substring(decimalIndex + 1);
-          if (decimalPart.length > 2) {
-            input.value = value.substring(0, decimalIndex + 3);
-          }
+            const decimalPart = value.substring(decimalIndex + 1);
+            if (decimalPart.length > 2) {
+                input.value = value.substring(0, decimalIndex + 3);
+            }
         }
     }
 
@@ -26,13 +37,16 @@
         
         if (row.classList.contains('edit-mode')) {
             button.textContent = 'Save';
+            // Populate edit fields with current values
+            row.querySelector('input[name="name"]').value = row.querySelector('.display-field[name="name"]').textContent;
+            row.querySelector('input[name="category"]').value = row.querySelector('.display-field[name="category"]').textContent;
+            row.querySelector('input[name="price"]').value = row.querySelector('.display-field[name="price"]').textContent.replace('£', '');
         } else {
             button.textContent = '✎';
             updateExpense(row);
         }
     }
 
-    // Sends an AJAX request to update Expenses
     function updateExpense(row) {
         const id = row.dataset.id;
         const name = row.querySelector('input[name="name"]').value;
@@ -49,9 +63,9 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                row.querySelector('span[name="name"]').textContent = name;
-                row.querySelector('span[name="category"]').textContent = category;
-                row.querySelector('span[name="price"]').textContent = `£${parseFloat(price).toFixed(2)}`;
+                row.querySelector('.display-field[name="name"]').textContent = name;
+                row.querySelector('.display-field[name="category"]').textContent = category;
+                row.querySelector('.display-field[name="price"]').textContent = `£${parseFloat(price).toFixed(2)}`;
                 updateTotal();
             } else {
                 alert('Failed to update expense. Please try again.');
@@ -64,14 +78,13 @@
     }
 
     function updateTotal() {
-        const priceSpans = document.querySelectorAll('span[name="price"]');
+        const priceSpans = document.querySelectorAll('.display-field[name="price"]');
         let total = 0;
         priceSpans.forEach(span => {
             total += parseFloat(span.textContent.replace('£', ''));
         });
         document.getElementById('total').textContent = `£${total.toFixed(2)}`;
     }
-
     </script>
 </head>
 <body>
@@ -79,7 +92,7 @@
 
     <form method="POST" action="/add">
         <input type="text" name="name" placeholder="Expense Name" required>
-        <input list="categories" name="category" placeholder="Select or Enter Category" required>
+        <input list="categories" name="category" placeholder="Select or Enter Category">
         <datalist id="categories">
             <option value="Food">
             <option value="Bills">
@@ -90,7 +103,7 @@
         <button type="submit">Add Expense</button>
     </form>
     
-    <h2>Total: £<span id="total">{{ total }}</span></h2>
+    <h2>Total: <span id="total">{{ total }}</span></h2>
     
     <table>
         <thead>
@@ -105,16 +118,16 @@
             {% for expense in expenses %}
             <tr class="display-mode" data-id="{{ expense.id }}">
                 <td>
-                    <span name="name">{{ expense.name }}</span>
-                    <input type="text" name="name" value="{{ expense.name }}">
+                    <span class="display-field" name="name">{{ expense.name }}</span>
+                    <input class="edit-field" type="text" name="name">
                 </td>
                 <td>
-                    <span name="category">{{ expense.category }}</span>
-                    <input type="text" name="category" value="{{ expense.category }}">
+                    <span class="display-field" name="category">{{ expense.category }}</span>
+                    <input class="edit-field" type="text" name="category">
                 </td>
                 <td>
-                    <span name="price">£{{ "%.2f"|format(expense.price / 100) }}</span>
-                    <input type="number" step="0.01" name="price" value="{{ "%.2f"|format(expense.price / 100) }}" oninput="formatPrice(this)">
+                    <span class="display-field" name="price">£{{ "%.2f"|format(expense.price / 100) }}</span>
+                    <input class="edit-field" type="number" step="0.01" name="price" oninput="formatPrice(this)">
                 </td>
                 <td>
                     <button type="button" class="update-icon" onclick="toggleEditMode(this)">✎</button>
