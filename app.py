@@ -10,6 +10,7 @@ db = SQLAlchemy(app)
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
@@ -27,6 +28,16 @@ def add_expense():
     db.session.add(new_expense)
     db.session.commit()
     return redirect(url_for('index'))
+
+@app.route('/delete/<int:id>', methods=['GET', 'POST'])
+def delete_expense(id):
+    expense = Expense.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(expense)
+        db.session.commit()
+        data_deletion_counter.inc()  # Increment the deletion metric
+        return redirect(url_for('index'))
+    return render_template('delete.html', expense=expense)
 
 if __name__ == '__main__':
     with app.app_context():
