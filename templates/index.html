@@ -83,7 +83,7 @@
         priceSpans.forEach(span => {
             total += parseFloat(span.textContent.replace('£', ''));
         });
-        document.getElementById('total').textContent = `£${total.toFixed(2)}`;
+        document.getElementById('total').textContent = `${total.toFixed(2)}`;
     }
     </script>
 </head>
@@ -103,7 +103,7 @@
         <button type="submit">Add Expense</button>
     </form>
     
-    <h2>Total: <span id="total">{{ total }}</span></h2>
+    <h2>Total: £<span id="total">{{ total }}</span></h2>
     
     <table>
         <thead>
