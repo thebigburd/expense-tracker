@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+    let categoryChartInstance = null;
+    let priceRangeChartInstance = null;
+
     function formatPrice(input) {
         const value = input.value;
         const decimalIndex = value.indexOf('.');
