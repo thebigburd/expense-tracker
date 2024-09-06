@@ -4,27 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <title>Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .edit-mode .edit-field {
-            display: inline-block;
-        }
-        .edit-mode .display-field {
-            display: none;
-        }
-        .display-mode .edit-field {
-            display: none;
-        }
-        .display-mode .display-field {
-            display: inline-block;
-        }
-        .chart-container {
-            width: 400px;
-            height: 400px;
-            margin: 20px;
-            display: inline-block;
-        }
-    </style>
     <script>
     function formatPrice(input) {
         const value = input.value;
@@ -114,6 +95,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 title: {
                     display: true,
                     text: 'Expenses by Category'
@@ -153,6 +135,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 title: {
                     display: true,
                     text: 'Expenses by Price Range'
@@ -175,63 +158,73 @@
     </script>
 </head>
 <body>
-    <h1>Expense Tracker</h1>   
+    <div class="container">
+        <div class="main-content">
+            <h1>Expense Tracker</h1>   
 
-    <form method="POST" action="/add">
-        <input type="text" name="name" placeholder="Expense Name" required>
-        <input list="categories" name="category" placeholder="Select or Enter Category">
-        <datalist id="categories">
-            <option value="Food">
-            <option value="Bills">
-            <option value="Entertainment">
-            <option value="Clothing">
-        </datalist>
-        <input type="number" step="0.01" name="price" id="price" placeholder="Price" required oninput="formatPrice(this)">
-        <button type="submit">Add Expense</button>
-    </form>
-    
-    <h2>Total: £<span id="total">{{ total }}</span></h2>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Expense Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for expense in expenses %}
-            <tr class="display-mode" data-id="{{ expense.id }}">
-                <td>
-                    <span class="display-field" name="name">{{ expense.name }}</span>
-                    <input class="edit-field" type="text" name="name">
-                </td>
-                <td>
-                    <span class="display-field" name="category">{{ expense.category }}</span>
-                    <input class="edit-field" type="text" name="category">
-                </td>
-                <td>
-                    <span class="display-field" name="price">£{{ "%.2f"|format(expense.price / 100) }}</span>
-                    <input class="edit-field" type="number" step="0.01" name="price" oninput="formatPrice(this)">
-                </td>
-                <td>
-                    <button type="button" class="update-icon" onclick="toggleEditMode(this)">✎</button>
-                    <form method="POST" action="{{ url_for('delete_expense', id=expense.id) }}" style="display: inline;">
-                        <button type="submit" class="delete-icon">X</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <div class="expense-form">
+                <form method="POST" action="/add">
+                    <input type="text" name="name" placeholder="Expense Name" required>
+                    <input list="categories" name="category" placeholder="Select or Enter Category" required>
+                    <datalist id="categories">
+                        <option value="Food">
+                        <option value="Bills">
+                        <option value="Entertainment">
+                        <option value="Clothing">
+                    </datalist>
+                    <input type="number" step="0.01" name="price" id="price" placeholder="Price" required oninput="formatPrice(this)">
+                    <button type="submit">Add Expense</button>
+                </form>
+            </div>
 
-    <div class="chart-container">
-        <canvas id="categoryChart"></canvas>
-    </div>
-    <div class="chart-container">
-        <canvas id="priceRangeChart"></canvas>
+            <div class="expense-list">
+                <h2>Total: £ <span id="total">{{ total }}</span></h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Expense Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr class="display-mode" data-id="{{ expense.id }}">
+                            <td>
+                                <span class="display-field" name="name">{{ expense.name }}</span>
+                                <input class="edit-field" type="text" name="name">
+                            </td>
+                            <td>
+                                <span class="display-field" name="category">{{ expense.category }}</span>
+                                <input class="edit-field" type="text" name="category">
+                            </td>
+                            <td>
+                                <span class="display-field" name="price">£{{ "%.2f"|format(expense.price / 100) }}</span>
+                                <input class="edit-field" type="number" step="0.01" name="price" oninput="formatPrice(this)">
+                            </td>
+                            <td>
+                                <button type="button" class="update-icon" onclick="toggleEditMode(this)">✎</button>
+                                <form method="POST" action="{{ url_for('delete_expense', id=expense.id) }}" style="display: inline;">
+                                    <button type="submit" class="delete-icon">X</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="charts">
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="priceRangeChart"></canvas>
+            </div>
+        </div>
     </div>
 
 </body>
